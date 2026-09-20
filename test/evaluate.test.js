@@ -66,15 +66,17 @@ test('in / notIn', function () {
   assert.strictEqual(xf.evaluate({ left: { field: 'country' }, op: 'notIn', right: { value: ['IN', 'US'] } }, { country: 'FR' }), true);
 });
 
-// ── dates: month(dateField) = 'January', plus other date fns ──
-test('month(dateField) eq month-name', function () {
-  var expr = { left: { fn: 'month', field: 'createdAt' }, op: 'eq', right: { value: 'January' } };
-  assert.strictEqual(xf.evaluate(expr, { createdAt: '2026-01-15T00:00:00Z' }), true);
-  assert.strictEqual(xf.evaluate(expr, { createdAt: '2026-07-15T00:00:00Z' }), false);
+// ── dates: month is 1–12 in 2.0; monthname gives 'January' ──
+test('month(dateField) is a number; monthname(dateField) is the name', function () {
+  var byNum = { left: { fn: 'month', field: 'createdAt' }, op: 'eq', right: { value: 1 } };
+  var byName = { left: { fn: 'monthname', field: 'createdAt' }, op: 'eq', right: { value: 'January' } };
+  assert.strictEqual(xf.evaluate(byNum, { createdAt: '2026-01-15' }), true);
+  assert.strictEqual(xf.evaluate(byName, { createdAt: '2026-01-15' }), true);
+  assert.strictEqual(xf.evaluate(byName, { createdAt: '2026-07-15' }), false);
 });
 
-test('year / day / quarter / weekday / monthNum (UTC)', function () {
-  var row = { d: '2026-07-21T10:00:00Z' };   // Tuesday
+test('year / day / quarter / weekday / monthNum (1.x name, still accepted)', function () {
+  var row = { d: '2026-07-21' };   // Tuesday
   assert.strictEqual(xf.evaluate({ left: { fn: 'year', field: 'd' }, op: 'eq', right: { value: 2026 } }, row), true);
   assert.strictEqual(xf.evaluate({ left: { fn: 'day', field: 'd' }, op: 'eq', right: { value: 21 } }, row), true);
   assert.strictEqual(xf.evaluate({ left: { fn: 'quarter', field: 'd' }, op: 'eq', right: { value: 3 } }, row), true);
@@ -142,6 +144,6 @@ test('registerFunction / registerOperator', function () {
   xf.registerOperator('regex', function (a, b) { return new RegExp(b).test(String(a)); });
   assert.strictEqual(xf.evaluate({ left: { field: 'sku' }, op: 'regex', right: { value: '^INV-' } }, { sku: 'INV-01' }), true);
 
-  assert.ok(xf.functions().indexOf('reverse') >= 0);
+  assert.ok(xf.functions().some(function (f) { return f.name === 'reverse'; }));
   assert.ok(xf.operators().indexOf('regex') >= 0);
 });

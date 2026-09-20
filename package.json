@@ -1,7 +1,7 @@
 {
   "name": "@xeplr/expression-handler",
   "version": "1.0.6",
-  "description": "Level-1 structured expression evaluator — apply field functions (upper/month/…) and operators (eq/contains/gt/between/isNull/…) to a data row. No parser; JSON expressions in, boolean out.",
+  "description": "The one formula engine for xeplr: its own parser (no eval, no dependencies), one function list, compiled-once formulas, totals over lists, AND/OR conditions. Runs in Node and the browser.",
   "main": "index.js",
   "files": [
     "index.js",
