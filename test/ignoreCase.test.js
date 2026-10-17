@@ -49,6 +49,15 @@ test('the 1.x word operators fold too', function () {
   assert.strictEqual(xf.compile({ left: { field: 'name' }, op: 'notIn', right: { value: ['ACME CORP'] } }, { ignoreCase: true })(row), false);
 });
 
+test('contains, startsWith and endsWith fold too', function () {
+  var row = { name: 'Acme Corp' };
+  assert.strictEqual(folded('contains(name, "ACME")', row), true);
+  assert.strictEqual(exact('contains(name, "ACME")', row), false);
+  assert.strictEqual(folded('startsWith(name, "acme")', row), true);
+  assert.strictEqual(folded('endsWith(name, "CORP")', row), true);
+  assert.strictEqual(folded('contains(name, "zed")', row), false);
+});
+
 test('a total\'s condition folds as well', function () {
   var f = xf.compile('countif(items, status = "PAID")', { ignoreCase: true });
   assert.strictEqual(f({ items: [{ status: 'paid' }, { status: 'Paid' }, { status: 'refunded' }] }), 2);
