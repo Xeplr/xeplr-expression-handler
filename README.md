@@ -171,7 +171,7 @@ const f = xf.compile('sumif(fytd(order_date), revenue)', {
 | `fiscalYearStart` | `4` (April) | `fytd` and any financial-year function |
 | `today` | now | `ytd`, `fytd` — pin it for tests and scheduled runs |
 | `missing` | `'null'` | `'error'` makes a name the row lacks an error |
-| `ignoreCase` | `false` | `true` makes `=`, `!=`, `in` and the text operators (`contains`, `startsWith`, `endsWith`, `notIn`, …) ignore case. Numbers and null compare exactly as before. BI's report formulas set it, so a formula and the SQL it is translated into agree whatever the database's collation; Workflow's conditions leave it off |
+| `ignoreCase` | `false` | `true` makes `=`, `!=`, `in`, the text operators (`contains`, `startsWith`, `endsWith`, `notIn`, …) and the functions `contains()`, `startsWith()`, `endsWith()` ignore case. Numbers and null compare exactly as before. BI's report formulas set it, so a formula and the SQL it is translated into agree whatever the database's collation; Workflow's conditions leave it off |
 | `maxListItems` · `maxDistinct` · `maxSteps` · `maxLevels` | see [Limits](#limits) | |
 | `aggregate(name, args, { compile, level })` | none | supplies the rows for the group form of a total (BI) |
 
