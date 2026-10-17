@@ -127,7 +127,7 @@ test('$thisrow reads the row the formula is for', function () {
 
 // ── errors say where ──
 test('errors name the problem and the position', function () {
-  assert.match(errorOf('if(a, b)'), /if\(\) takes 3 arguments, not 2 at character 1/);
+  assert.match(errorOf('if(a, b)'), /^if\(condition, then, otherwise\) needs 3 arguments, not 2\..* at character 1$/);
   assert.match(errorOf('upper(a'), /Expected "\)" but found the end of the formula at character 8/);
   assert.match(errorOf('revenue +'), /Expected a value/);
   assert.match(errorOf('a = b)'), /Unexpected "\)" at character 6/);

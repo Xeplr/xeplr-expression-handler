@@ -86,8 +86,8 @@ test('the group form needs the caller to supply the rows', function () {
 });
 
 test('wrong argument counts are caught while typing', function () {
-  assert.match(xf.check('sumif(orders)').error, /sumif\(\) takes 2 to 3 arguments/);
-  assert.match(xf.check('countif(a, b, c)').error, /countif\(\) takes 1 to 2 arguments/);
+  assert.match(xf.check('sumif(orders)').error, /^sumif\(condition, value\) needs 2 arguments, not 1\. condition: Which rows to add/);
+  assert.match(xf.check('countif(a, b, c)').error, /^countif\(condition\) needs 1 argument, not 3\./);
 });
 
 // ── analyze ──

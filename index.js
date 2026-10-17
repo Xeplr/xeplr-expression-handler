@@ -53,6 +53,12 @@ function contextKey(options) {
 // key to build: this is the path a caller passing text per row takes.
 var plainCache = new Map();
 
+// A total's words in an error follow the caller: over a report's rows when it
+// supplies them (options.aggregate), else naming a list first.
+function parseOptions(options) {
+  return { rows: Boolean(options && typeof options.aggregate === 'function') };
+}
+
 function compile(formula, options) {
   if (typeof formula === 'string' && options === undefined) {
     var plain = plainCache.get(formula);
@@ -64,11 +70,11 @@ function compile(formula, options) {
   }
   var key = contextKey(options);
   if (typeof formula === 'string') {
-    if (key === null) return compileTree(parse(formula), options);
+    if (key === null) return compileTree(parse(formula, parseOptions(options)), options);
     var k = key + '\u0000' + formula;
     var hit = textCache.get(k);
     if (hit) return hit;
-    var f = compileTree(parse(formula), options);
+    var f = compileTree(parse(formula, parseOptions(options)), options);
     if (textCache.size >= CACHE_MAX) textCache.clear();
     textCache.set(k, f);
     return f;
@@ -149,6 +155,10 @@ module.exports = {
   },
 
   functions: fns.listFunctions,
+  // How to call one: its signature and every argument named, explained and
+  // exemplified — for signature help, a reference list, an error.
+  usage: fns.usage,
+  arityMessage: fns.arityMessage,
   implementations: implementations,
   CATEGORIES: fns.CATEGORIES,
   registerFunction: registerFunction,
