@@ -29,7 +29,9 @@ f({ country: 'India', score: 600, referred: true });   // → 'India payroll'
 | `xf.toText(tree)` | the tree back as text, for an editor showing a stored formula |
 | `xf.check(text, context?)` | `{ ok, tree, error, position }` — never throws; for editors |
 | `xf.analyze(textOrTree)` | `{ fields, fieldsOutsideTotals, thisrow, functions, aggregates, levels }` |
-| `xf.functions()` | the function list, for pickers and help |
+| `xf.functions()` | the function list, for pickers and help; each entry carries `params` |
+| `xf.usage(name, { rows }?)` | how to call it: `{ signature, params: [{ name, about, example }], description, example, min, max }`; `rows: false` for a total that names its list first. For signature help, a reference, an error |
+| `xf.arityMessage(name, given, { rows }?)` | the words for a wrong argument count, built from `usage` |
 | `xf.implementations(context?)` | `{ name: fn }` ready to call, for a caller that wants the functions without the language |
 | `xf.registerFunction(entry)` | adds one to the list |
 | `xf.evaluate(condition, row)` | 1.x: a condition → `true` / `false` |
@@ -131,6 +133,23 @@ Each function is one entry: its code **and** what the UI shows.
 `xf.functions()` returns the list; BI's reference panel, autocomplete and
 validation, and Workflow's condition picker are all built from it.
 `xf.registerFunction(entry)` adds one.
+
+**Every argument is documented** — its name, what it is, and an example
+(`PARAMS` in `lib/functions.js`; a test fails for a function without them).
+`xf.usage(name)` gives them to an editor's signature help, and a call with the
+wrong number of arguments says exactly what it needs:
+
+```
+sumif(condition, value) needs 2 arguments, not 1. condition: Which rows to add:
+a test that is true or false for each row (e.g. status = "Paid"). value: What to
+add up for those rows — a column or a calculation (e.g. amount).
+Example: sumif(status = "Refunded", amount)
+```
+
+The words follow the caller: over a report group's rows, a total is
+`sumif(condition, value)`; where it names its list (Workflow, a `compile`
+without `aggregate`), `sumif(list, condition, value)`. Why: "takes 2 to 3
+arguments" named neither the arguments nor which form applied.
 
 | Category | Functions |
 |---|---|
