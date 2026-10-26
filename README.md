@@ -154,7 +154,7 @@ arguments" named neither the arguments nor which form applied.
 | Category | Functions |
 |---|---|
 | Math | `round` `abs` `ceil` `floor` `sqrt` `min` `max` `pow` `trunc` `exp` `ln` `log` `log10` `log2` `cbrt` |
-| Text | `upper` `lower` `trim` `concat` `substring` `left` `right` `replace` `contains` `startsWith` `endsWith` `length` |
+| Text | `upper` `lower` `trim` `concat` `substring` `left` `right` `replace` `contains` `startsWith` `endsWith` `length` `find` `textBefore` `textAfter` `split` `extract` `toNumber` `fileName` `fileExtension` `folder` |
 | Date | `today` `yesterday` `year` `month` `day` `quarter` `weekday` `datediff` `dateadd` `monthname` `monthkey` `quarterkey` `daykey` `ytd` `fytd` |
 | Logic | `if` `coalesce` `ifnull` `isnull` `between` |
 | Aggregate | `sum` `sumif` `countif` `countifunique` — see [Array formulas](#array-formulas) |
@@ -166,6 +166,10 @@ kept that way.
 **Behaviour — BI's rules, adopted everywhere (agreed):**
 - **Every function is total:** nonsense in → `null` out, never an exception.
 - **Text of nothing is empty:** `upper(null)` → `''`, never `"null"`.
+- **Positions count from 1**, as in `substring`; `find` gives **0** when the text is not there (a spreadsheet's error cannot be tested in a formula). `textBefore`/`textAfter` take an optional occurrence — negative counts from the end, so `textAfter(path, "/", -1)` is everything after the last `/` — and give `''` when it is not there.
+- **`split(text, separator)`** gives the whole list; with a part (`1`, or `-1` for the last) it gives that part, or nothing past the end.
+- **`extract(text, pattern)`** gives the first match, or its first `( )` group; a pattern is at most 200 characters, and one that is not valid is an error that says so.
+- **File paths** — `fileName`, `fileExtension` (no dot), `folder` — take either slash, so a Windows path and a web address both work.
 - **Empty counts as missing:** `coalesce('', x)` → `x`; `0` is not missing.
 - **Dates:** a date-only string `2026-05-01` is that calendar day in any time
   zone (built from its parts, as a database driver does). `month()` is
