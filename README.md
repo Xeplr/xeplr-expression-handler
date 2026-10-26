@@ -155,7 +155,7 @@ arguments" named neither the arguments nor which form applied.
 |---|---|
 | Math | `round` `abs` `ceil` `floor` `sqrt` `min` `max` `pow` `trunc` `exp` `ln` `log` `log10` `log2` `cbrt` |
 | Text | `upper` `lower` `trim` `concat` `substring` `left` `right` `replace` `contains` `startsWith` `endsWith` `length` |
-| Date | `year` `month` `day` `quarter` `weekday` `datediff` `dateadd` `monthname` `monthkey` `quarterkey` `daykey` `ytd` `fytd` |
+| Date | `today` `yesterday` `year` `month` `day` `quarter` `weekday` `datediff` `dateadd` `monthname` `monthkey` `quarterkey` `daykey` `ytd` `fytd` |
 | Logic | `if` `coalesce` `ifnull` `isnull` `between` |
 | Aggregate | `sum` `sumif` `countif` `countifunique` — see [Array formulas](#array-formulas) |
 
@@ -172,6 +172,12 @@ kept that way.
   `1`–`12`; `monthname()` is `'May'`. The financial year comes from the
   [run context](#run-context) — April when none is given.
 - **Spreadsheet counting:** `substring(x, 1, 3)` counts from 1.
+- **`today()` and `yesterday()` are dates, not times:** `2026-10-26`, so
+  `due_date >= yesterday()` compares calendar days. They come from the
+  [run context](#run-context)'s `today` when it is pinned (a scheduled run, a
+  replay, a test), else the local clock. BI's SQL formulas refuse them, as
+  they refuse `ytd`: in SQL "today" would be the database's clock, not the
+  run's.
 
 ## Run context
 
@@ -188,7 +194,7 @@ const f = xf.compile('sumif(fytd(order_date), revenue)', {
 | Key | Default | Used by |
 |---|---|---|
 | `fiscalYearStart` | `4` (April) | `fytd` and any financial-year function |
-| `today` | now | `ytd`, `fytd` — pin it for tests and scheduled runs |
+| `today` | now | `today`, `yesterday`, `ytd`, `fytd` — pin it for tests and scheduled runs |
 | `missing` | `'null'` | `'error'` makes a name the row lacks an error |
 | `ignoreCase` | `false` | `true` makes `=`, `!=`, `in`, the text operators (`contains`, `startsWith`, `endsWith`, `notIn`, …) and the functions `contains()`, `startsWith()`, `endsWith()` ignore case. Numbers and null compare exactly as before. BI's report formulas set it, so a formula and the SQL it is translated into agree whatever the database's collation; Workflow's conditions leave it off |
 | `maxListItems` · `maxDistinct` · `maxSteps` · `maxLevels` | see [Limits](#limits) | |

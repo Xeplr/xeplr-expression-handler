@@ -160,3 +160,25 @@ test('registerFunction adds to the list; built-in syntax can\'t be replaced', fu
   assert.throws(function () { xf.registerFunction('if', function () {}); }, /built into the language/);
   assert.throws(function () { xf.registerFunction('sum', function () {}); }, /built into the language/);
 });
+
+test('today() and yesterday(): dates from the run, not the clock, when pinned', function () {
+  // A scheduled run or a replay pins today, so what it filtered is a fact
+  // about when it ran. Month and year boundaries are calendar days.
+  assert.equal(xf.compile('today()', { today: '2026-03-01' })({}), '2026-03-01');
+  assert.equal(xf.compile('yesterday()', { today: '2026-03-01' })({}), '2026-02-28');
+  assert.equal(xf.compile('yesterday()', { today: '2026-01-01' })({}), '2025-12-31');
+  assert.equal(xf.compile('datediff(due, today())', { today: '2026-01-20' })({ due: '2026-01-12' }), 8);
+  assert.equal(xf.compile('due >= yesterday()', { today: '2026-02-02' })({ due: '2026-02-01' }), true);
+});
+
+test('today() unpinned is the local date, and is never folded at compile time', function () {
+  var d = new Date();
+  var local = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  assert.equal(xf.compile('today()')({}), local);
+  assert.match(xf.check('today(1)').error, /^today\(\) needs/);
+});
+
+test('today and yesterday are in the reference, under Date', function () {
+  var names = xf.functions().filter(function (f) { return f.category === 'Date'; }).map(function (f) { return f.name; });
+  assert.ok(names.indexOf('today') >= 0 && names.indexOf('yesterday') >= 0);
+});
