@@ -182,3 +182,59 @@ test('today and yesterday are in the reference, under Date', function () {
   var names = xf.functions().filter(function (f) { return f.category === 'Date'; }).map(function (f) { return f.name; });
   assert.ok(names.indexOf('today') >= 0 && names.indexOf('yesterday') >= 0);
 });
+
+// Cutting text up and reading file paths — what a step between two others
+// needs when one gives a full path and the next wants the file's name.
+test('find — position from 1, 0 when absent, follows ignoreCase', function () {
+  assert.strictEqual(val('find("asha@x.com", "@")'), 5);
+  assert.strictEqual(val('find("abc", "z")'), 0);
+  assert.strictEqual(val('find("abc", "")'), 0);
+  assert.strictEqual(xf.compile('find("ABC", "b")', { ignoreCase: true })({}), 2);
+});
+
+test('textBefore / textAfter — first, nth and last occurrence', function () {
+  var row = { p: '/uploads/2026/oct/report.xlsx', e: 'asha@x.com' };
+  assert.strictEqual(val('textBefore(e, "@")', row), 'asha');
+  assert.strictEqual(val('textAfter(e, "@")', row), 'x.com');
+  assert.strictEqual(val('textAfter(p, "/", -1)', row), 'report.xlsx');
+  assert.strictEqual(val('textBefore(p, "/", -1)', row), '/uploads/2026/oct');
+  assert.strictEqual(val('textAfter(p, "/", 3)', row), 'oct/report.xlsx');
+  assert.strictEqual(val('textAfter(p, "/", 9)', row), '');
+  assert.strictEqual(val('textBefore(e, "#")', row), '');
+});
+
+test('split — a part, the last part, or the whole list', function () {
+  var row = { n: 'Asha Kumar Rao' };
+  assert.strictEqual(val('split(n, " ", 1)', row), 'Asha');
+  assert.strictEqual(val('split(n, " ", -1)', row), 'Rao');
+  assert.strictEqual(val('split(n, " ", 7)', row), null);
+  assert.deepStrictEqual(val('split(n, " ")', row), ['Asha', 'Kumar', 'Rao']);
+  assert.strictEqual(val('length(split(n, " "))', row), 3);
+});
+
+test('extract — first match or its group; a bad pattern says so', function () {
+  var row = { t: 'paid INV-2041 and INV-2042' };
+  assert.strictEqual(val('extract(t, "INV-[0-9]+")', row), 'INV-2041');
+  assert.strictEqual(val('extract(t, "INV-([0-9]+)")', row), '2041');
+  assert.strictEqual(val('extract(t, "XYZ")', row), '');
+  assert.throws(function () { val('extract(t, "(")', row); }, /is not a pattern/);
+});
+
+test('toNumber — text from a file as a number', function () {
+  assert.strictEqual(val('toNumber(" 1,200.50 ")'), 1200.5);
+  assert.strictEqual(val('toNumber("abc")'), null);
+  assert.strictEqual(val('toNumber("")'), null);
+  assert.strictEqual(val('toNumber(7)'), 7);
+});
+
+test('fileName / fileExtension / folder — either slash', function () {
+  var row = { p: '/uploads/2026/report.final.xlsx', w: 'C:\\data\\in\\a.csv', bare: 'README' };
+  assert.strictEqual(val('fileName(p)', row), 'report.final.xlsx');
+  assert.strictEqual(val('fileExtension(p)', row), 'xlsx');
+  assert.strictEqual(val('folder(p)', row), '/uploads/2026');
+  assert.strictEqual(val('fileName(w)', row), 'a.csv');
+  assert.strictEqual(val('folder(w)', row), 'C:\\data\\in');
+  assert.strictEqual(val('fileName(bare)', row), 'README');
+  assert.strictEqual(val('fileExtension(bare)', row), '');
+  assert.strictEqual(val('folder(bare)', row), '');
+});
