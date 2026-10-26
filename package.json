@@ -1,6 +1,6 @@
 {
   "name": "@xeplr/expression-handler",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "The one formula engine for xeplr: its own parser (no eval, no dependencies), one function list, compiled-once formulas, totals over lists, AND/OR conditions. Runs in Node and the browser.",
   "main": "index.js",
   "files": [
