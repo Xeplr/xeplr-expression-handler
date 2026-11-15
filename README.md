@@ -28,7 +28,7 @@ f({ country: 'India', score: 600, referred: true });   // → 'India payroll'
 | `xf.parse(text)` | the JSON tree (what gets stored); throws with the position |
 | `xf.toText(tree)` | the tree back as text, for an editor showing a stored formula |
 | `xf.check(text, context?)` | `{ ok, tree, error, position }` — never throws; for editors |
-| `xf.analyze(textOrTree)` | `{ fields, fieldsOutsideTotals, thisrow, functions, aggregates, levels }` |
+| `xf.analyze(textOrTree)` | `{ fields, fieldsOutsideTotals, thisrow, params, functions, aggregates, levels }` |
 | `xf.functions()` | the function list, for pickers and help; each entry carries `params` |
 | `xf.usage(name, { rows }?)` | how to call it: `{ signature, params: [{ name, about, example }], description, example, min, max }`; `rows: false` for a total that names its list first. For signature help, a reference, an error |
 | `xf.arityMessage(name, given, { rows }?)` | the words for a wrong argument count, built from `usage` |
@@ -61,6 +61,7 @@ saved BI formula keeps working, with the changes listed below.
 | Compare | `=` `==` `!=` `<>` `<` `<=` `>` `>=` · `x in (1, 2, 3)` |
 | Logic | `and` `or` `not` · `cond ? a : b` · `if(cond, a, b)` |
 | Function call | `upper(city)`, `round(amount, 2)` — names are case-insensitive |
+| Parameters | `:start_date`, `:region` — a value the run supplies (a report's or dataset's parameters) |
 
 **Precedence**, lowest first — identical to expr-eval so old formulas mean what
 they meant: `? :` → `or` → `and` → comparisons and `in` → `+ - ||` →
@@ -95,6 +96,15 @@ them — a space or symbol, a leading digit, a dot, or a keyword. BI's
 **Lists are written in parentheses** — `status in ("paid", "refunded")` — because
 brackets now mean a column. (expr-eval wrote lists as `[ … ]`; no BI formula
 in the code or tests uses them, and the side-by-side test checks saved ones.)
+
+**Parameters are written `:name`** — `order_date >= :start_date`,
+`region = :region`. The name is letters, digits and `_`, right after the
+colon; only where a value is expected, so `a ? b : c` is never one. Run in
+JavaScript, the value comes from the context's `params` (`{ params: {
+start_date: '2026-04-01' } }`), and a parameter with no value is refused
+(`No value for :start_date`). Turned into SQL (BI's query engine), it stays
+`:start_date` and the database driver binds it, so a value is never pasted
+into the SQL text. Stored as `{ param: 'start_date' }`.
 
 **A name the row doesn't have** reads as `null`. With `{ missing: 'error' }`
 in the context it is an error instead — `Unknown column "revnue"` — which is
@@ -196,6 +206,7 @@ const f = xf.compile('sumif(fytd(order_date), revenue)', {
 | `fiscalYearStart` | `4` (April) | `fytd` and any financial-year function |
 | `today` | now | `today`, `yesterday`, `ytd`, `fytd` — pin it for tests and scheduled runs |
 | `missing` | `'null'` | `'error'` makes a name the row lacks an error |
+| `params` | none | `{ name: value }` for `:name` parameters; one with no value is refused |
 | `ignoreCase` | `false` | `true` makes `=`, `!=`, `in`, the text operators (`contains`, `startsWith`, `endsWith`, `notIn`, …) and the functions `contains()`, `startsWith()`, `endsWith()` ignore case. Numbers and null compare exactly as before. BI's report formulas set it, so a formula and the SQL it is translated into agree whatever the database's collation; Workflow's conditions leave it off |
 | `maxListItems` · `maxDistinct` · `maxSteps` · `maxLevels` | see [Limits](#limits) | |
 | `aggregate(name, args, { compile, level })` | none | supplies the rows for the group form of a total (BI) |
