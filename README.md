@@ -180,8 +180,10 @@ kept that way.
 - **Dates:** a date-only string `2026-05-01` is that calendar day in any time
   zone (built from its parts, as a database driver does). `month()` is
   `1`–`12`; `monthname()` is `'May'`. `hour()` is `0`–`23` and `hourkey()`
-  is `2024-06-17 14` (group by it for one row an hour, in time order); a date
-  with no time reads as its midnight, hour `0`. The financial year comes from the
+  is `2024-06-17 14` (group by it for one row an hour, in time order). They
+  read text by its own digits and a Date by its UTC clock (how database
+  drivers hand a timestamp over), never the server's zone; a date with no
+  time reads as its midnight, hour `0`. The financial year comes from the
   [run context](#run-context) — April when none is given.
 - **Spreadsheet counting:** `substring(x, 1, 3)` counts from 1.
 - **`today()` and `yesterday()` are dates, not times:** `2026-10-26`, so

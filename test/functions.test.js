@@ -69,10 +69,17 @@ test('the hour of a date and time', function () {
   assert.strictEqual(val('hour("2016-02-08 05:46:00")'), 5);
   assert.strictEqual(val('hour("2016-02-08 23:59:59")'), 23);
   assert.strictEqual(val('hourkey("2016-02-08 05:46:00")'), '2016-02-08 05');
-  // A Date is read as the other date functions read it, in this process's clock.
-  var at = new Date(2016, 1, 8, 14, 30);
-  assert.strictEqual(val('hour(t)', { t: at }), 14);
-  assert.strictEqual(val('hourkey(t)', { t: at }), '2016-02-08 14');
+  // A Date by its UTC clock, as a database driver hands a timestamp over —
+  // never the server's zone.
+  var at = new Date(Date.UTC(2016, 1, 8, 23, 30));
+  assert.strictEqual(val('hour(t)', { t: at }), 23);
+  assert.strictEqual(val('hourkey(t)', { t: at }), '2016-02-08 23');
+  // Text by its own digits, a zone written on it included.
+  assert.strictEqual(val('hour("2016-02-08T05:46:00+05:30")'), 5);
+  // Other ways of writing a date still give an hour.
+  assert.strictEqual(typeof val('hour("Feb 8, 2016 05:46:00 GMT")'), 'number');
+  assert.strictEqual(val('hour(t)', { t: 1454910360000 }), 5);
+  assert.strictEqual(val('hour(t)', { t: new Date('nonsense') }), null);
   // A date with no time is its midnight; nothing is nothing.
   assert.strictEqual(val('hour("2016-02-08")'), 0);
   assert.strictEqual(val('hourkey("2016-02-08")'), '2016-02-08 00');
