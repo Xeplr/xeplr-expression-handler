@@ -65,6 +65,23 @@ test('dates', function () {
   assert.strictEqual(val('monthkey(d) || " " || quarterkey(d) || " " || daykey(d)'), '2026-07 2026-Q3 2026-07-29');
 });
 
+test('the hour of a date and time', function () {
+  assert.strictEqual(val('hour("2016-02-08 05:46:00")'), 5);
+  assert.strictEqual(val('hour("2016-02-08 23:59:59")'), 23);
+  assert.strictEqual(val('hourkey("2016-02-08 05:46:00")'), '2016-02-08 05');
+  // A Date is read as the other date functions read it, in this process's clock.
+  var at = new Date(2016, 1, 8, 14, 30);
+  assert.strictEqual(val('hour(t)', { t: at }), 14);
+  assert.strictEqual(val('hourkey(t)', { t: at }), '2016-02-08 14');
+  // A date with no time is its midnight; nothing is nothing.
+  assert.strictEqual(val('hour("2016-02-08")'), 0);
+  assert.strictEqual(val('hourkey("2016-02-08")'), '2016-02-08 00');
+  assert.strictEqual(val('hour(blank)'), null);
+  assert.strictEqual(val('hourkey("nonsense")'), null);
+  // Keys sort as time does.
+  assert.ok(val('hourkey("2016-02-08 09:00")') < val('hourkey("2016-02-08 10:00")'));
+});
+
 test('a date-only string is that calendar day in any time zone', function () {
   // Built from its parts — "2026-05-01" must never read as April 30th.
   assert.strictEqual(val('day("2026-05-01")'), 1);

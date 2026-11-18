@@ -165,7 +165,7 @@ arguments" named neither the arguments nor which form applied.
 |---|---|
 | Math | `round` `abs` `ceil` `floor` `sqrt` `min` `max` `pow` `trunc` `exp` `ln` `log` `log10` `log2` `cbrt` |
 | Text | `upper` `lower` `trim` `concat` `substring` `left` `right` `replace` `contains` `startsWith` `endsWith` `length` |
-| Date | `today` `yesterday` `year` `month` `day` `quarter` `weekday` `datediff` `dateadd` `monthname` `monthkey` `quarterkey` `daykey` `ytd` `fytd` |
+| Date | `today` `yesterday` `year` `month` `day` `quarter` `weekday` `datediff` `dateadd` `monthname` `monthkey` `quarterkey` `daykey` `hour` `hourkey` `ytd` `fytd` |
 | Logic | `if` `coalesce` `ifnull` `isnull` `between` |
 | Aggregate | `sum` `sumif` `countif` `countifunique` — see [Array formulas](#array-formulas) |
 
@@ -179,7 +179,9 @@ kept that way.
 - **Empty counts as missing:** `coalesce('', x)` → `x`; `0` is not missing.
 - **Dates:** a date-only string `2026-05-01` is that calendar day in any time
   zone (built from its parts, as a database driver does). `month()` is
-  `1`–`12`; `monthname()` is `'May'`. The financial year comes from the
+  `1`–`12`; `monthname()` is `'May'`. `hour()` is `0`–`23` and `hourkey()`
+  is `2024-06-17 14` (group by it for one row an hour, in time order); a date
+  with no time reads as its midnight, hour `0`. The financial year comes from the
   [run context](#run-context) — April when none is given.
 - **Spreadsheet counting:** `substring(x, 1, 3)` counts from 1.
 - **`today()` and `yesterday()` are dates, not times:** `2026-10-26`, so
